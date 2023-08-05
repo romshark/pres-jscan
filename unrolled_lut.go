@@ -122,7 +122,6 @@ func UnrolledLUT(s []byte) ([]byte, error) {
 				} else if lutSX[s[5]] != 3 {
 					return s[5:], ErrIllegalEscapeSeq
 				}
-				return s, ErrIllegalEscapeSeq
 			}
 			s = s[5:]
 		case '"':
