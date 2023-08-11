@@ -1,19 +1,21 @@
 package main
 
 import (
-	"errors"
-	"os"
-	"sort"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-var implementations = []struct {
+var implementationsStr = []struct {
 	Name string
 	Fn   func([]byte) ([]byte, error)
 }{
-	{Name: "unrolled_lut", Fn: UnrolledLUT},
+	{Name: "str_naive______", Fn: StrNaive},
+	{Name: "str_lut________", Fn: StrLUT},
+	{Name: "str_unrol8_sw__", Fn: StrUnrol8Switch},
+	{Name: "str_unrol8_lut_", Fn: StrUnrol8LUT},
+	{Name: "str_unrol16_lut", Fn: StrUnrol16LUT},
 }
 
 type T struct {
@@ -23,7 +25,7 @@ type T struct {
 	CheckErr func(*testing.T, error)
 }
 
-var tests = map[string]T{
+var testsStr = map[string]T{
 	"empty_string": {
 		Input:      `"}`,
 		ExpectTail: `}`,
@@ -161,10 +163,10 @@ var tests = map[string]T{
 }
 
 func Test(t *testing.T) {
-	for _, testName := range keysSorted(tests) {
-		td := tests[testName]
+	for _, testName := range keysSorted(testsStr) {
+		td := testsStr[testName]
 		t.Run(testName, func(t *testing.T) {
-			for _, impl := range implementations {
+			for _, impl := range implementationsStr {
 				t.Run(impl.Name, func(t *testing.T) {
 					out, err := impl.Fn([]byte(td.Input))
 					if td.CheckErr != nil {
@@ -190,45 +192,26 @@ var (
 	GERR  error
 )
 
-func Benchmark(b *testing.B) {
+func BenchmarkStr(b *testing.B) {
 	for _, testName := range benchmarks {
 		b.Run(testName, func(b *testing.B) {
-			require.Contains(b, tests, testName)
-			td := tests[testName]
+			require.Contains(b, testsStr, testName)
+			td := testsStr[testName]
 			input := []byte(td.Input)
 
-			for _, impl := range implementations {
+			var resTail []byte
+			var resErr error
+
+			for _, impl := range implementationsStr {
 				b.Run(impl.Name, func(b *testing.B) {
 					for n := 0; n < b.N; n++ {
-						GTAIL, GERR = impl.Fn(input)
+						resTail, resErr = impl.Fn(input)
 					}
 				})
 			}
+
+			runtime.KeepAlive(resTail)
+			runtime.KeepAlive(resErr)
 		})
 	}
-}
-
-func errorIs(expect error) func(t *testing.T, err error) {
-	return func(t *testing.T, err error) {
-		require.Error(t, err)
-		require.True(t, errors.Is(err, expect),
-			"actual:   %#v;\nexpected: %#v", err, expect)
-	}
-}
-
-func MustReadFile(path string) []byte {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-	return b
-}
-
-func keysSorted[T any](m map[string]T) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
 }
