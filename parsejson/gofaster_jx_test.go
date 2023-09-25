@@ -29,10 +29,8 @@ func (dec GofasterJX) Traverse(
 	if dec.Next() != jx.Object {
 		return errors.New("expected object")
 	}
-	dec.ObjBytes(func(dec *jx.Decoder, key []byte) error {
+	return dec.ObjBytes(func(dec *jx.Decoder, key []byte) error {
 		onVar(key, gofasterjxTypeMap[dec.Next()])
-		dec.Skip()
-		return nil
+		return dec.Skip()
 	})
-	return nil
 }

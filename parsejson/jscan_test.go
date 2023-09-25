@@ -22,7 +22,7 @@ var romsharkjscanTypeMap = [...]JSONValueType{
 func (itr RomsharkJscan) Traverse(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) error {
-	itr.Parser.Scan(input, func(i *jscan.Iterator[[]byte]) (err bool) {
+	err := itr.Parser.Scan(input, func(i *jscan.Iterator[[]byte]) (err bool) {
 		switch i.Level() {
 		case 0:
 			return i.ValueType() != jscan.ValueTypeObject
@@ -32,5 +32,8 @@ func (itr RomsharkJscan) Traverse(
 		}
 		return false
 	})
+	if err.IsErr() {
+		return err
+	}
 	return nil
 }
