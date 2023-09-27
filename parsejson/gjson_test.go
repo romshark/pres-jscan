@@ -29,7 +29,7 @@ func (GJSON) Traverse(
 		return errors.New("expected object")
 	}
 	r.ForEach(func(key, value gjson.Result) bool {
-		t := JSONValueTypeNull
+		var t JSONValueType
 		switch {
 		case value.IsObject():
 			t = JSONValueTypeObject
