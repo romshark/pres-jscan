@@ -154,6 +154,22 @@ func Test(t *testing.T) {
 	}
 }
 
+func TestNotObject(t *testing.T) {
+	jsonArray := `["foo", 42]`
+	for _, impl := range implementations {
+		itr := impl.Make()
+		t.Run(impl.Name, func(t *testing.T) {
+			err := itr.Traverse(
+				[]byte(jsonArray),
+				func(name []byte, tp JSONValueType) {
+					t.Errorf("unexpected callback call: %q %d", string(name), tp)
+				},
+			)
+			require.Error(t, err)
+		})
+	}
+}
+
 var (
 	GN []byte
 	GT JSONValueType
