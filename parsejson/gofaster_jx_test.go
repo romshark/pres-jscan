@@ -10,6 +10,8 @@ func NewGofasterJX() Traverser {
 	return GofasterJX{Decoder: new(jx.Decoder)}
 }
 
+type GofasterJX struct{ *jx.Decoder }
+
 var gofasterjxTypeMap = [...]JSONValueType{
 	0:         0, // Zero value
 	jx.Object: JSONValueTypeObject,
@@ -19,8 +21,6 @@ var gofasterjxTypeMap = [...]JSONValueType{
 	jx.Bool:   JSONValueTypeBoolean,
 	jx.Null:   JSONValueTypeNull,
 }
-
-type GofasterJX struct{ *jx.Decoder }
 
 func (dec GofasterJX) Traverse(
 	input []byte, onVar func(name []byte, t JSONValueType),

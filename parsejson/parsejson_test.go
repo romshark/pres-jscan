@@ -35,8 +35,8 @@ var implementations = []struct {
 	{Name: "encoding_json_opt___", Make: NewEncodingJSONOptimized},
 	{Name: "bytedance_sonic_____", Make: NewBytedanceSonic},
 	{Name: "jsoniter____________", Make: NewJsoniter},
-	{Name: "jsoniter_opt________", Make: NewJsoniterOptimized},
-	{Name: "jsoniter_opt_unsafe_", Make: NewJsoniterOptimizedUnsafe},
+	{Name: "jsoniter_unsafe_____", Make: NewJsoniterUnsafe},
+	{Name: "tidwallgjson________", Make: NewGJSON},
 	{Name: "gofaster_jx_________", Make: NewGofasterJX},
 	{Name: "jscan_______________", Make: NewJscan},
 
@@ -47,7 +47,7 @@ var implementations = []struct {
 	{Name: "fastjson____________", Make: NewFastjson},
 }
 
-func Test(t *testing.T) {
+func TestOK(t *testing.T) {
 	type Expectation struct {
 		Name string
 		Type JSONValueType
@@ -164,6 +164,21 @@ func TestNotObject(t *testing.T) {
 				func(name []byte, tp JSONValueType) {
 					t.Errorf("unexpected callback call: %q %d", string(name), tp)
 				},
+			)
+			require.Error(t, err)
+		})
+	}
+}
+
+func TestErr(t *testing.T) {
+	invalidJSON := `{"foo":"bar","baz":illegal}`
+	require.False(t, json.Valid([]byte(invalidJSON)))
+	for _, impl := range implementations {
+		itr := impl.Make()
+		t.Run(impl.Name, func(t *testing.T) {
+			err := itr.Traverse(
+				[]byte(invalidJSON),
+				func(name []byte, tp JSONValueType) {},
 			)
 			require.Error(t, err)
 		})

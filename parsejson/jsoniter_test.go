@@ -8,9 +8,11 @@ import (
 
 func NewJsoniter() Traverser {
 	return Jsoniter{
-		Iterator: jsoniter.NewIterator(jsoniter.ConfigDefault),
+		Iterator: jsoniter.NewIterator(jsoniter.ConfigFastest),
 	}
 }
+
+type Jsoniter struct{ *jsoniter.Iterator }
 
 var jsoniterTypeMap = [...]JSONValueType{
 	0:                    0, // Zero value
@@ -22,18 +24,22 @@ var jsoniterTypeMap = [...]JSONValueType{
 	jsoniter.NilValue:    JSONValueTypeNull,
 }
 
-type Jsoniter struct{ *jsoniter.Iterator }
-
 func (itr Jsoniter) Traverse(
 	input []byte, onVar func(name []byte, t JSONValueType),
-) error {
+) (err error) {
 	itr.ResetBytes(input)
 	if itr.WhatIsNext() != jsoniter.ObjectValue {
 		return errors.New("expected object")
 	}
-	for f := itr.ReadObject(); f != ""; f = itr.ReadObject() {
-		onVar([]byte(f), jsoniterTypeMap[itr.WhatIsNext()])
-		itr.ReadAny()
-	}
-	return nil
+	itr.ReadObjectCB(func(itr *jsoniter.Iterator, s string) bool {
+		n := itr.WhatIsNext()
+		if n == jsoniter.InvalidValue {
+			err = errors.New("invalid value")
+			return false
+		}
+		onVar([]byte(s), jsoniterTypeMap[n])
+		itr.Skip()
+		return true
+	})
+	return err
 }
