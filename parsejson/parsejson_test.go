@@ -196,10 +196,8 @@ var (
 	GT JSONValueType
 )
 
-func BenchmarkObject(b *testing.B) { benchmark(b, fileJSONObject) }
-
-func benchmark(b *testing.B, input string) {
-	in := []byte(input)
+func BenchmarkObject(b *testing.B) {
+	in := []byte(fileJSONObject)
 	if !json.Valid(in) {
 		b.Fatal("invalid json input")
 	}
