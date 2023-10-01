@@ -4,28 +4,24 @@ import (
 	"encoding/json"
 )
 
-func NewEncodingJSONOptimized() GraphQLVariablesTraverser { return EncodingJSONOptimized{} }
+func NewEncodingJSONOptimized() GraphQLVariablesTraverser {
+	return EncodingJSONOptimized{}
+}
 
 type EncodingJSONOptimized struct{}
 
 var encodingJSONOptCharMap = [256]JSONValueType{
-	'{': JSONValueTypeObject,
-	'[': JSONValueTypeArray,
+	'{': JSONValueTypeObject, '[': JSONValueTypeArray,
 	'"': JSONValueTypeString,
-	'0': JSONValueTypeNumber,
-	'1': JSONValueTypeNumber,
-	'2': JSONValueTypeNumber,
-	'3': JSONValueTypeNumber,
-	'4': JSONValueTypeNumber,
-	'5': JSONValueTypeNumber,
-	'6': JSONValueTypeNumber,
-	'7': JSONValueTypeNumber,
-	'8': JSONValueTypeNumber,
-	'9': JSONValueTypeNumber,
-	'-': JSONValueTypeNumber,
-	't': JSONValueTypeBoolean,
-	'f': JSONValueTypeBoolean,
-	'n': JSONValueTypeNull,
+
+	'0': JSONValueTypeNumber, '1': JSONValueTypeNumber,
+	'2': JSONValueTypeNumber, '3': JSONValueTypeNumber,
+	'4': JSONValueTypeNumber, '5': JSONValueTypeNumber,
+	'6': JSONValueTypeNumber, '7': JSONValueTypeNumber,
+	'8': JSONValueTypeNumber, '9': JSONValueTypeNumber,
+
+	'-': JSONValueTypeNumber, 't': JSONValueTypeBoolean,
+	'f': JSONValueTypeBoolean, 'n': JSONValueTypeNull,
 }
 
 func (EncodingJSONOptimized) TraverseJSON(
