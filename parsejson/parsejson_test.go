@@ -21,14 +21,18 @@ const (
 	JSONValueTypeNull
 )
 
-// Traverse calls onVariable for every variable encountered in input.
-type Traverser interface {
-	Traverse(input []byte, onVariable func(name []byte, t JSONValueType)) error
+type GraphQLVariablesTraverser interface {
+	// TraverseJSON calls onVariable for every GraphQL variable encountered in input.
+	// Returns an error if input is invalid JSON or doesn't contain an object.
+	TraverseJSON(
+		input []byte,
+		onVariable func(name []byte, t JSONValueType),
+	) error
 }
 
 var implementations = []struct {
 	Name string
-	Make func() Traverser
+	Make func() GraphQLVariablesTraverser
 }{
 	{Name: "encoding_json_______", Make: NewEncodingJSON},
 	{Name: "encoding_json_unsafe", Make: NewEncodingJSONUnsafe},
@@ -134,7 +138,7 @@ func TestOK(t *testing.T) {
 				itr := impl.Make()
 				t.Run(impl.Name, func(t *testing.T) {
 					var actual []Expectation
-					err := itr.Traverse(
+					err := itr.TraverseJSON(
 						[]byte(td.Input),
 						func(name []byte, t JSONValueType) {
 							actual = append(actual, Expectation{
@@ -154,35 +158,37 @@ func TestOK(t *testing.T) {
 	}
 }
 
-func TestNotObject(t *testing.T) {
-	jsonArray := `["foo", 42]`
-	for _, impl := range implementations {
-		itr := impl.Make()
-		t.Run(impl.Name, func(t *testing.T) {
-			err := itr.Traverse(
-				[]byte(jsonArray),
-				func(name []byte, tp JSONValueType) {
-					t.Errorf("unexpected callback call: %q %d", string(name), tp)
-				},
-			)
-			require.Error(t, err)
-		})
-	}
-}
-
 func TestErr(t *testing.T) {
-	invalidJSON := `{"foo":"bar","baz":illegal}`
-	require.False(t, json.Valid([]byte(invalidJSON)))
-	for _, impl := range implementations {
-		itr := impl.Make()
-		t.Run(impl.Name, func(t *testing.T) {
-			err := itr.Traverse(
-				[]byte(invalidJSON),
-				func(name []byte, tp JSONValueType) {},
-			)
-			require.Error(t, err)
-		})
-	}
+	t.Run("syntax", func(t *testing.T) {
+		invalidJSON := `{"foo":"bar","baz":illegal}`
+		require.False(t, json.Valid([]byte(invalidJSON)))
+		for _, impl := range implementations {
+			itr := impl.Make()
+			t.Run(impl.Name, func(t *testing.T) {
+				err := itr.TraverseJSON(
+					[]byte(invalidJSON),
+					func(name []byte, tp JSONValueType) {},
+				)
+				require.Error(t, err)
+			})
+		}
+	})
+
+	t.Run("no_object", func(t *testing.T) {
+		jsonArray := `["foo", 42]`
+		for _, impl := range implementations {
+			itr := impl.Make()
+			t.Run(impl.Name, func(t *testing.T) {
+				err := itr.TraverseJSON(
+					[]byte(jsonArray),
+					func(name []byte, tp JSONValueType) {
+						t.Errorf("unexpected callback call: %q %d", string(name), tp)
+					},
+				)
+				require.Error(t, err)
+			})
+		}
+	})
 }
 
 var (
@@ -201,7 +207,7 @@ func benchmark(b *testing.B, input string) {
 		itr := impl.Make()
 		b.Run(impl.Name, func(b *testing.B) {
 			for n := 0; n < b.N; n++ {
-				if err := itr.Traverse(in, func(name []byte, t JSONValueType) {
+				if err := itr.TraverseJSON(in, func(name []byte, t JSONValueType) {
 					GN, GT = name, t
 				}); err != nil {
 					panic(err)

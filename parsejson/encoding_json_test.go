@@ -2,11 +2,11 @@ package parsejson_test
 
 import "encoding/json"
 
-func NewEncodingJSON() Traverser { return EncodingJSON{} }
+func NewEncodingJSON() GraphQLVariablesTraverser { return EncodingJSON{} }
 
 type EncodingJSON struct{}
 
-func (EncodingJSON) Traverse(
+func (EncodingJSON) TraverseJSON(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) error {
 	var m map[string]any

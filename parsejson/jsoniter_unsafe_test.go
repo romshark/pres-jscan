@@ -6,7 +6,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-func NewJsoniterUnsafe() Traverser {
+func NewJsoniterUnsafe() GraphQLVariablesTraverser {
 	return JsoniterUnsafe{
 		Iterator: jsoniter.NewIterator(jsoniter.ConfigDefault),
 	}
@@ -14,7 +14,7 @@ func NewJsoniterUnsafe() Traverser {
 
 type JsoniterUnsafe struct{ *jsoniter.Iterator }
 
-func (itr JsoniterUnsafe) Traverse(
+func (itr JsoniterUnsafe) TraverseJSON(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) (err error) {
 	itr.ResetBytes(input)

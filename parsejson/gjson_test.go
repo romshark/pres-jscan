@@ -6,7 +6,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func NewGJSON() Traverser { return GJSON{} }
+func NewGJSON() GraphQLVariablesTraverser { return GJSON{} }
 
 type GJSON struct{}
 
@@ -18,7 +18,7 @@ var gjsonTypeMap = [...]JSONValueType{
 	gjson.Null:   JSONValueTypeNull,
 }
 
-func (GJSON) Traverse(
+func (GJSON) TraverseJSON(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) error {
 	if !gjson.ValidBytes(input) {

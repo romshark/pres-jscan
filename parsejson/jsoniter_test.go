@@ -6,7 +6,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-func NewJsoniter() Traverser {
+func NewJsoniter() GraphQLVariablesTraverser {
 	return Jsoniter{
 		Iterator: jsoniter.NewIterator(jsoniter.ConfigFastest),
 	}
@@ -24,7 +24,7 @@ var jsoniterTypeMap = [...]JSONValueType{
 	jsoniter.NilValue:    JSONValueTypeNull,
 }
 
-func (itr Jsoniter) Traverse(
+func (itr Jsoniter) TraverseJSON(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) (err error) {
 	itr.ResetBytes(input)

@@ -2,7 +2,7 @@ package parsejson_test
 
 import "github.com/valyala/fastjson"
 
-func NewFastjson() Traverser {
+func NewFastjson() GraphQLVariablesTraverser {
 	return Fastjson{Parser: new(fastjson.Parser)}
 }
 
@@ -18,7 +18,7 @@ var fastjsonTypeMap = [...]JSONValueType{
 	fastjson.TypeNull:   JSONValueTypeNull,
 }
 
-func (dec Fastjson) Traverse(
+func (dec Fastjson) TraverseJSON(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) error {
 	val, err := dec.Parser.ParseBytes(input)

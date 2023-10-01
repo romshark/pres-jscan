@@ -6,7 +6,7 @@ import (
 	"github.com/go-faster/jx"
 )
 
-func NewGofasterJX() Traverser {
+func NewGofasterJX() GraphQLVariablesTraverser {
 	return GofasterJX{Decoder: new(jx.Decoder)}
 }
 
@@ -22,7 +22,7 @@ var gofasterjxTypeMap = [...]JSONValueType{
 	jx.Null:   JSONValueTypeNull,
 }
 
-func (dec GofasterJX) Traverse(
+func (dec GofasterJX) TraverseJSON(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) error {
 	dec.ResetBytes(input)

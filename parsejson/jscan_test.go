@@ -2,7 +2,7 @@ package parsejson_test
 
 import "github.com/romshark/jscan/v2"
 
-func NewJscan() Traverser {
+func NewJscan() GraphQLVariablesTraverser {
 	return RomsharkJscan{Parser: jscan.NewParser[[]byte](1024)}
 }
 
@@ -19,7 +19,7 @@ var romsharkjscanTypeMap = [...]JSONValueType{
 	jscan.ValueTypeNull:   JSONValueTypeNull,
 }
 
-func (itr RomsharkJscan) Traverse(
+func (itr RomsharkJscan) TraverseJSON(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) error {
 	err := itr.Parser.Scan(input, func(i *jscan.Iterator[[]byte]) (err bool) {

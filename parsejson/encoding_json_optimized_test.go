@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-func NewEncodingJSONOptimized() Traverser { return EncodingJSONOptimized{} }
+func NewEncodingJSONOptimized() GraphQLVariablesTraverser { return EncodingJSONOptimized{} }
 
 type EncodingJSONOptimized struct{}
 
@@ -28,7 +28,7 @@ var encodingJSONOptCharMap = [256]JSONValueType{
 	'n': JSONValueTypeNull,
 }
 
-func (EncodingJSONOptimized) Traverse(
+func (EncodingJSONOptimized) TraverseJSON(
 	input []byte, onVar func(name []byte, t JSONValueType),
 ) error {
 	var m map[string]json.RawMessage
