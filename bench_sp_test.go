@@ -14,6 +14,8 @@ var implementationsSp = []struct {
 	{Name: "sp_index_________", Fn: SpIndex},
 	{Name: "sp_unrol8_switch_", Fn: SpUnrol8Switch},
 	{Name: "sp_unrol8_lut____", Fn: SpUnrol8LUT},
+	{Name: "sp_unrol16_switch", Fn: SpUnrol16Switch},
+	{Name: "sp_unrol16_lut___", Fn: SpUnrol16LUT},
 }
 
 const spTestTail32 = `{"object-key1" : "object-value"}`
