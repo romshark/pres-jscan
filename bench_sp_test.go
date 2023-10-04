@@ -41,6 +41,10 @@ var testsSp = map[string]T{
 		Input:      ` {`,
 		ExpectTail: `{`,
 	},
+	"whitespace1_tail32": {
+		Input:      "  " + spTestTail32,
+		ExpectTail: spTestTail32,
+	},
 	"tab1_tail1": {
 		Input:      "\t{",
 		ExpectTail: `{`,
@@ -96,6 +100,8 @@ func TestSp(t *testing.T) {
 // benchmarksSp refers to keys of tests
 var benchmarksSp = []string{
 	"tab1_tail1",
+	"no_spaces_tail32",
+	"whitespace1_tail32",
 	"sequence40_tail32",
 	"sequence130_tail32",
 }
